@@ -18,7 +18,7 @@ export default function Hero() {
       <a 
         href="https://wa.me/5512996065673?text=Olá! Vi o seu site e gostaria de falar com um técnico."
         target="_blank"
-        className="mt-12 bg-blue-500 hover:scale-105 transition-all duration-300 text-white px-8 py-4 rounded-full font-bold text-xl shadow-[0_0_20px_rgba(14,179,255,0.4)]"
+        className="no-underline mt-12 bg-blue-500 hover:scale-105 transition-all duration-300 text-white px-8 py-4 rounded-full font-bold text-xl shadow-[0_0_20px_rgba(14,179,255,0.4)]"
       >
         FALAR COM TÉCNICO
       </a>
