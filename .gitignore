@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local claude memory
+.claude/
+
+# firebase deploy cache
+.firebase/
+
+# workspace file
+*.code-workspace

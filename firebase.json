@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "southamerica-east1",
+      "secrets": ["GEMINI_API_KEY"]
+    }
+  }
+}
