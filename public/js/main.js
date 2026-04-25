@@ -1,3 +1,26 @@
+﻿/* ===== IMAGE FALLBACKS ===== */
+(function initImgFallbacks() {
+  ['navLogoImg', 'footerLogoImg'].forEach(id => {
+    const img = document.getElementById(id);
+    if (!img) return;
+    const fallback = img.nextElementSibling;
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
+      if (fallback) fallback.style.display = 'none';
+    });
+    img.addEventListener('error', () => {
+      img.classList.add('img-error');
+      if (fallback) fallback.style.display = 'block';
+    });
+    if (fallback) fallback.style.display = 'block';
+  });
+  document.querySelectorAll('.carousel__img').forEach(img => {
+    img.addEventListener('error', () => {
+      img.classList.add('img-error');
+    });
+  });
+})();
+
 /* ===== CAROUSEL DRAG ===== */
 (function initCarousel() {
   const carousel = document.getElementById('carousel');
@@ -247,11 +270,7 @@ const linkObserver = new IntersectionObserver((entries) => {
 sections.forEach(s => linkObserver.observe(s));
 
 /* ===== COUNTER BAR PROGRESS ===== */
-if (counterBar) {
-  const style = document.createElement('style');
-  style.textContent = `.section-counter__bar::after { transform: scaleX(var(--p, 0)); }`;
-  document.head.appendChild(style);
-}
+// The ::after rule is in style.css; only the CSS custom property is updated here
 
 // update bar via scroll
 window.addEventListener('scroll', () => {
@@ -275,6 +294,36 @@ window.addEventListener('scroll', () => {
   obs.observe(win);
 })();
 
+/* ===== CURSOR GLOW ===== */
+(function initCursorGlow() {
+  const glow = document.getElementById('cursorGlow');
+  if (!glow) return;
+  let gx = -999, gy = -999, rafPending = false;
+  document.addEventListener('mousemove', e => {
+    gx = e.clientX;
+    gy = e.clientY;
+    document.body.classList.add('has-cursor');
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(() => {
+        glow.style.transform = `translate(${gx - 350}px, ${gy - 350}px)`;
+        rafPending = false;
+      });
+    }
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => document.body.classList.remove('has-cursor'));
+})();
+
+/* ===== BACK TO TOP ===== */
+(function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > window.innerHeight * 0.6);
+  }, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+})();
+
 /* ===== CHAT WIDGET ===== */
 (function initChat() {
   const widget   = document.getElementById('chatWidget');
@@ -287,9 +336,7 @@ window.addEventListener('scroll', () => {
 
   if (!widget) return;
 
-  const WA_ABRAAO = '5512996065673';
-  const history = []; // [{role, content}]
-  let isStreaming = false;
+  const WA_NUMBER = '5512991037897';
 
   function toggleChat() {
     widget.classList.toggle('chat-widget--open');
@@ -298,19 +345,22 @@ window.addEventListener('scroll', () => {
     }
   }
 
+  const history = [];
+  let isBotTyping = false;
+
   function addMessage(text, type) {
     const chips_el = document.getElementById('chatChips');
     if (chips_el) chips_el.remove();
 
     const msg = document.createElement('div');
     msg.className = `chat-msg chat-msg--${type}`;
-    const bubbleEl = document.createElement('span');
-    bubbleEl.className = 'chat-msg__bubble';
-    bubbleEl.innerHTML = text;
-    msg.appendChild(bubbleEl);
+    const bubble_el = document.createElement('span');
+    bubble_el.className = 'chat-msg__bubble';
+    bubble_el.textContent = text;
+    msg.appendChild(bubble_el);
     messages.appendChild(msg);
     messages.scrollTop = messages.scrollHeight;
-    return bubbleEl;
+    return bubble_el;
   }
 
   function addTypingIndicator() {
@@ -323,64 +373,62 @@ window.addEventListener('scroll', () => {
   }
 
   async function sendMessage() {
-    const text = input.value.trim();
-    if (!text || isStreaming) return;
+    if (isBotTyping) return;
+    const raw = input.value.trim();
+    if (!raw) return;
+    const text = raw.slice(0, 300);
+    if (!text) return;
 
     addMessage(text, 'user');
     history.push({ role: 'user', content: text });
     input.value = '';
-    isStreaming = true;
     sendBtn.disabled = true;
-    input.disabled = true;
+    isBotTyping = true;
 
-    const typingEl = addTypingIndicator();
+    const typing = addTypingIndicator();
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history: history.slice(0, -1) }),
+        body: JSON.stringify({ message: text, history: history.slice(-10) }),
       });
 
-      typingEl.remove();
+      typing.remove();
 
-      if (!res.ok) {
-        addMessage('Erro ao conectar. Tente falar pelo WhatsApp: <a href="https://wa.me/' + WA_ABRAAO + '" target="_blank" rel="noopener">clique aqui</a>.', 'bot');
-        return;
-      }
+      if (!res.ok) throw new Error('API error');
 
-      const botBubble = addMessage('', 'bot');
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let fullText = '';
+      const bubble_el = addMessage('', 'bot');
+      let full = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        fullText += decoder.decode(value, { stream: true });
-        botBubble.innerHTML = fullText.replace(/\n/g, '<br>');
+        full += decoder.decode(value, { stream: true });
+        bubble_el.textContent = full;
         messages.scrollTop = messages.scrollHeight;
       }
 
-      history.push({ role: 'assistant', content: fullText });
-
-      // keep history bounded to last 10 exchanges
-      if (history.length > 20) history.splice(0, 2);
+      if (full) history.push({ role: 'assistant', content: full });
 
     } catch {
-      typingEl.remove();
-      addMessage('Sem conexão com o servidor. Fale pelo <a href="https://wa.me/' + WA_ABRAAO + '" target="_blank" rel="noopener">WhatsApp</a>.', 'bot');
+      typing.remove();
+      const bubble_el = addMessage('Não consegui responder agora. Fala direto com a gente no WhatsApp! 😊', 'bot');
+      setTimeout(() => {
+        const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }, 1200);
     } finally {
-      isStreaming = false;
       sendBtn.disabled = false;
-      input.disabled = false;
-      input.focus();
+      isBotTyping = false;
     }
   }
 
   bubble.addEventListener('click', toggleChat);
   sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) sendMessage(); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
   document.querySelectorAll('.chat-chip').forEach(chip => {
     chip.addEventListener('click', () => {
