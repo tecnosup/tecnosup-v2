@@ -19,14 +19,13 @@
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; }
+html { scroll-behavior: auto; overflow-x: hidden; }
 body {
   background: var(--bg);
   color: var(--white);
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.6;
-  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 img { display: block; max-width: 100%; }
@@ -1404,7 +1403,6 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
 
   .nav__links {
     position: fixed;
-    /* começa acima do viewport: top=0 e vai para cima em 100% da própria altura */
     top: 0;
     left: 0; right: 0;
     background: rgba(5,6,12,0.98);
@@ -1421,8 +1419,9 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
     box-shadow: 0 8px 32px rgba(0,0,0,0.8);
     max-height: 100svh;
     overflow-y: auto;
+    pointer-events: none;
   }
-  .nav__links.open { transform: translateY(0); }
+  .nav__links.open { transform: translateY(0); pointer-events: all; }
   .nav__links li { width: 100%; }
   .nav__links a { display: block; padding: 1rem var(--pad-x); font-size: 0.82rem; }
 
