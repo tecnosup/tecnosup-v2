@@ -15,8 +15,8 @@
     if (fallback) fallback.style.display = 'block';
   });
   document.querySelectorAll('.carousel__img').forEach(img => {
-    img.addEventListener('error', () => {
-      img.classList.add('img-error');
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
     });
   });
 })();

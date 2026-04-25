@@ -398,7 +398,7 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
 }
 
-/* real 3D PNG image */
+/* real 3D PNG image — hidden by default, shown only on successful load */
 .carousel__img {
   position: absolute;
   width: 200px;
@@ -407,7 +407,9 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   filter: drop-shadow(0 8px 24px rgba(0,178,255,0.3));
   animation: float3d 5s ease-in-out infinite;
   z-index: 2;
+  display: none;
 }
+.carousel__img.loaded { display: block; }
 /* stagger float per card */
 .carousel__card:nth-child(2) .carousel__img { animation-delay: -1s; }
 .carousel__card:nth-child(3) .carousel__img { animation-delay: -2s; }
@@ -419,22 +421,17 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   50% { transform: translateY(-14px) rotate(2deg); }
 }
 
-/* SVG placeholder (shown when image fails or missing) */
+/* SVG placeholder — visible by default, hidden when image loads */
 .carousel__img-placeholder {
   position: absolute;
   width: 140px; height: 140px;
   z-index: 2;
   animation: float3d 5s ease-in-out infinite;
   opacity: 0.7;
-  display: none;
+  display: block;
 }
 .carousel__img-placeholder svg { width: 100%; height: 100%; }
-/* show placeholder when JS adds .img-error to the <img> */
-.carousel__img.img-error { display: none !important; }
-.carousel__img.img-error + .carousel__img-placeholder { display: block; }
-/* also cover missing src */
-.carousel__img:not([src]) { display: none; }
-.carousel__img:not([src]) + .carousel__img-placeholder { display: block; }
+.carousel__img.loaded + .carousel__img-placeholder { display: none; }
 
 /* card body */
 .carousel__body {
@@ -932,10 +929,14 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   text-transform: uppercase;
   margin-top: 0.5rem;
 }
+.footer__right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
 .footer__social {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
   color: var(--muted);
   transition: color 0.2s;
 }
