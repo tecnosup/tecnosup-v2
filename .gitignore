@@ -43,6 +43,9 @@ next-env.d.ts
 # local claude memory
 .claude/
 
+# functions dependencies
+functions/node_modules/
+
 # firebase deploy cache
 .firebase/
 
