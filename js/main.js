@@ -345,6 +345,9 @@ window.addEventListener('scroll', () => {
     }
   }
 
+  const history = [];
+  let isBotTyping = false;
+
   function addMessage(text, type) {
     const chips_el = document.getElementById('chatChips');
     if (chips_el) chips_el.remove();
@@ -357,25 +360,70 @@ window.addEventListener('scroll', () => {
     msg.appendChild(bubble_el);
     messages.appendChild(msg);
     messages.scrollTop = messages.scrollHeight;
+    return bubble_el;
   }
 
-  function sendMessage() {
+  function addTypingIndicator() {
+    const msg = document.createElement('div');
+    msg.className = 'chat-msg chat-msg--bot chat-msg--typing';
+    msg.innerHTML = '<span class="chat-msg__bubble"><span class="chat-typing"><span></span><span></span><span></span></span></span>';
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
+    return msg;
+  }
+
+  async function sendMessage() {
+    if (isBotTyping) return;
     const raw = input.value.trim();
     if (!raw) return;
-
     const text = raw.slice(0, 300);
     if (!text) return;
 
     addMessage(text, 'user');
+    history.push({ role: 'user', content: text });
     input.value = '';
+    sendBtn.disabled = true;
+    isBotTyping = true;
 
-    setTimeout(() => {
-      addMessage('Certo! Vou te direcionar para o WhatsApp agora. 😊', 'bot');
+    const typing = addTypingIndicator();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: history.slice(-10) }),
+      });
+
+      typing.remove();
+
+      if (!res.ok) throw new Error('API error');
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      const bubble_el = addMessage('', 'bot');
+      let full = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        full += decoder.decode(value, { stream: true });
+        bubble_el.textContent = full;
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      if (full) history.push({ role: 'assistant', content: full });
+
+    } catch {
+      typing.remove();
+      const bubble_el = addMessage('Não consegui responder agora. Fala direto com a gente no WhatsApp! 😊', 'bot');
       setTimeout(() => {
         const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank', 'noopener,noreferrer');
-      }, 800);
-    }, 500);
+      }, 1200);
+    } finally {
+      sendBtn.disabled = false;
+      isBotTyping = false;
+    }
   }
 
   bubble.addEventListener('click', toggleChat);
