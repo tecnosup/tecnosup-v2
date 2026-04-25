@@ -99,15 +99,10 @@
     glide();
   }
 
-  // Mouse
+  // Mouse only — touch uses native scroll
   carousel.addEventListener('mousedown', e => { e.preventDefault(); onStart(e.pageX); });
   window.addEventListener('mousemove', e => { if (isDragging) onMove(e.pageX); });
   window.addEventListener('mouseup', onEnd);
-
-  // Touch
-  carousel.addEventListener('touchstart', e => { onStart(e.touches[0].clientX); }, { passive: true });
-  carousel.addEventListener('touchmove', e => { onMove(e.touches[0].clientX); }, { passive: true });
-  carousel.addEventListener('touchend', onEnd);
 
   // Prevent click after drag
   carousel.addEventListener('click', e => {
