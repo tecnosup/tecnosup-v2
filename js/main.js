@@ -1,28 +1,17 @@
 ﻿/* ===== IMAGE FALLBACKS ===== */
 (function initImgFallbacks() {
-  const navLogo = document.getElementById('navLogoImg');
-  if (navLogo) {
-    navLogo.addEventListener('error', () => {
-      navLogo.style.display = 'none';
-      const fallback = navLogo.nextElementSibling;
+  ['navLogoImg', 'footerLogoImg'].forEach(id => {
+    const img = document.getElementById(id);
+    if (!img) return;
+    img.addEventListener('error', () => {
+      img.classList.add('img-error');
+      const fallback = img.nextElementSibling;
       if (fallback) fallback.style.display = 'block';
     });
-  }
-  const footerLogo = document.getElementById('footerLogoImg');
-  if (footerLogo) {
-    footerLogo.addEventListener('error', () => {
-      footerLogo.style.display = 'none';
-      const fallback = footerLogo.nextElementSibling;
-      if (fallback) fallback.style.display = 'block';
-    });
-  }
+  });
   document.querySelectorAll('.carousel__img').forEach(img => {
     img.addEventListener('error', () => {
-      img.style.display = 'none';
-      const glow = img.previousElementSibling;
-      if (glow && glow.classList.contains('carousel__img-glow')) {
-        glow.style.opacity = '0.4';
-      }
+      img.classList.add('img-error');
     });
   });
 })();

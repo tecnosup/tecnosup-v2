@@ -175,8 +175,9 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
 .nav__links {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1.8rem;
   list-style: none;
+  flex-wrap: nowrap;
 }
 .nav__links a {
   font-size: 0.72rem;
@@ -205,6 +206,7 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   padding: 0.45rem 1.2rem;
   border-radius: 2px;
   transition: background 0.2s, color 0.2s !important;
+  white-space: nowrap;
 }
 .nav__cta::after { display: none !important; }
 .nav__cta:hover {
@@ -423,11 +425,14 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   z-index: 2;
   animation: float3d 5s ease-in-out infinite;
   opacity: 0.7;
+  display: none;
 }
 .carousel__img-placeholder svg { width: 100%; height: 100%; }
-/* hide placeholder when real image loads */
-.carousel__img + .carousel__img-placeholder { display: none; }
-.carousel__img[style*="display: none"] + .carousel__img-placeholder,
+/* show placeholder when JS adds .img-error to the <img> */
+.carousel__img.img-error { display: none !important; }
+.carousel__img.img-error + .carousel__img-placeholder { display: block; }
+/* also cover missing src */
+.carousel__img:not([src]) { display: none; }
 .carousel__img:not([src]) + .carousel__img-placeholder { display: block; }
 
 /* card body */
