@@ -164,7 +164,8 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   align-items: center;
   gap: 0.6rem;
 }
-.nav__logo-img { height: 34px; width: auto; filter: brightness(1.1); }
+.nav__logo-img { height: 34px; width: auto; filter: brightness(1.1); display: none; }
+.nav__logo-img.loaded { display: inline-block; }
 .nav__logo-text {
   font-family: var(--font-serif);
   font-weight: 800;
@@ -920,7 +921,8 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   align-items: flex-start;
   margin-bottom: 3rem;
 }
-.footer__logo { height: 38px; width: auto; }
+.footer__logo { height: 38px; width: auto; display: none; }
+.footer__logo.loaded { display: inline-block; }
 .footer__logo-text { font-family: var(--font-serif); font-weight: 800; font-size: 1.3rem; letter-spacing: 0.06em; }
 .footer__tagline {
   font-size: 0.62rem;

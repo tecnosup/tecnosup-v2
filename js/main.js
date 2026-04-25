@@ -3,11 +3,16 @@
   ['navLogoImg', 'footerLogoImg'].forEach(id => {
     const img = document.getElementById(id);
     if (!img) return;
+    const fallback = img.nextElementSibling;
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
+      if (fallback) fallback.style.display = 'none';
+    });
     img.addEventListener('error', () => {
       img.classList.add('img-error');
-      const fallback = img.nextElementSibling;
       if (fallback) fallback.style.display = 'block';
     });
+    if (fallback) fallback.style.display = 'block';
   });
   document.querySelectorAll('.carousel__img').forEach(img => {
     img.addEventListener('error', () => {
