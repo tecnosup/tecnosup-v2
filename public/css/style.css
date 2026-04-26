@@ -60,6 +60,7 @@ body::after {
 
 /* all content above the pseudo elements */
 nav, section, footer, .side-nav { position: relative; z-index: 1; }
+section[id] { scroll-margin-top: var(--nav-h, 68px); }
 
 /* ===== SIDE PROGRESS DOTS (Lando style) ===== */
 .side-nav {
@@ -504,7 +505,8 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   flex-direction: column;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   padding-top: calc(var(--nav-h) + 3rem);
   padding-bottom: 4rem;
 }
@@ -1299,6 +1301,20 @@ nav, section, footer, .side-nav { position: relative; z-index: 1; }
   40% { opacity: 1; transform: scale(1); }
 }
 .chat-panel__send:disabled { opacity: 0.4; cursor: not-allowed; }
+.chat-wa-btn {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.45rem 1rem;
+  background: #25d366;
+  color: #000;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.chat-wa-btn:hover { opacity: 0.85; }
 
 /* Quick reply chips */
 .chat-panel__chips {

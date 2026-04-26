@@ -175,8 +175,13 @@ function smoothScrollTo(target) {
 
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) { e.preventDefault(); smoothScrollTo(target); }
+    const href = a.getAttribute('href');
+    if (!href || href === '#') return;
+    const target = document.querySelector(href);
+    if (target) {
+      e.preventDefault();
+      smoothScrollTo(target);
+    }
   });
 });
 
@@ -406,15 +411,23 @@ window.addEventListener('scroll', () => {
         messages.scrollTop = messages.scrollHeight;
       }
 
-      if (full) history.push({ role: 'assistant', content: full });
+      if (full) {
+        history.push({ role: 'assistant', content: full });
+        const waMsg = document.createElement('div');
+        waMsg.className = 'chat-msg chat-msg--bot';
+        waMsg.innerHTML = `<a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener noreferrer" class="chat-wa-btn">Falar no WhatsApp →</a>`;
+        messages.appendChild(waMsg);
+        messages.scrollTop = messages.scrollHeight;
+      }
 
     } catch {
       typing.remove();
-      const bubble_el = addMessage('Não consegui responder agora. Fala direto com a gente no WhatsApp! 😊', 'bot');
-      setTimeout(() => {
-        const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }, 1200);
+      addMessage('Não consegui responder agora. Fala direto com a gente no WhatsApp! 😊', 'bot');
+      const waMsg = document.createElement('div');
+      waMsg.className = 'chat-msg chat-msg--bot';
+      waMsg.innerHTML = `<a href="https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener noreferrer" class="chat-wa-btn">Falar no WhatsApp →</a>`;
+      messages.appendChild(waMsg);
+      messages.scrollTop = messages.scrollHeight;
     } finally {
       sendBtn.disabled = false;
       isBotTyping = false;
